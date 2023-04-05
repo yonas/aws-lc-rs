@@ -124,6 +124,12 @@ fn get_cmake_config(manifest_dir: &PathBuf) -> cmake::Config {
 fn prepare_cmake_build(manifest_dir: &PathBuf, build_prefix: Option<&str>) -> cmake::Config {
     let mut cmake_cfg = get_cmake_config(manifest_dir);
 
+    if cfg!(feature = "dynamic") {
+        cmake_cfg.define("BUILD_SHARED_LIBS", "1");
+    } else {
+        cmake_cfg.define("BUILD_SHARED_LIBS", "0");
+    }
+
     let opt_level = env::var("OPT_LEVEL").unwrap_or_else(|_| "0".to_string());
     if opt_level.ne("0") {
         if opt_level.eq("1") || opt_level.eq("2") {
@@ -226,7 +232,7 @@ macro_rules! cfg_bindgen_platform {
 
 fn main() {
     use crate::OutputLib::{Crypto, RustWrapper, Ssl};
-    use crate::OutputLibType::Static;
+    use crate::OutputLibType::{Dynamic, Static};
 
     if cfg!(not(target_os = "linux")) {
         println!("\nFIPS is currently only supported on Linux.");
@@ -289,6 +295,12 @@ fn main() {
         }
     }
 
+    let linking_mode = if cfg!(feature = "dynamic") {
+        Dynamic.rust_lib_type()
+    } else {
+        Static.rust_lib_type()
+    };
+
     println!(
         "cargo:rustc-link-search=native={}",
         artifact_output_dir(&out_dir).display()
@@ -296,21 +308,21 @@ fn main() {
 
     println!(
         "cargo:rustc-link-lib={}={}",
-        Static.rust_lib_type(),
+        linking_mode,
         Crypto.libname(Some(&prefix))
     );
 
     if cfg!(feature = "ssl") {
         println!(
             "cargo:rustc-link-lib={}={}",
-            Static.rust_lib_type(),
+            linking_mode,
             Ssl.libname(Some(&prefix))
         );
     }
 
     println!(
         "cargo:rustc-link-lib={}={}",
-        Static.rust_lib_type(),
+        linking_mode,
         RustWrapper.libname(Some(&prefix))
     );
 
