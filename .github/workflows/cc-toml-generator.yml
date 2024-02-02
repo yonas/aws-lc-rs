@@ -1,0 +1,31 @@
+name: Auto-generate CC Build TOML
+
+on:
+  push:
+    branches:
+      - 'generate/aws-lc-sys*'
+
+jobs:
+  generate-and-commit:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, macos-12, macos-13-xlarge ]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install current Bash on macOS
+        if: runner.os == 'macOS'
+        run: brew install bash coreutils
+      - name: Run Generate Scripts
+        run: |
+          ./scripts/build/generate_build_toml.sh
+      - name: Commit and Push Changes
+        uses: benkaiser/rebase-commit-push@v1.3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}"
+          rebase: true
+          message: "CC Build TOML: ${{ matrix.os }}"

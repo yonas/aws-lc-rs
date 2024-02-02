@@ -14,6 +14,7 @@ PUBLISH=0
 REPO_ROOT=$(git rev-parse --show-toplevel)
 SYS_CRATE_DIR="${REPO_ROOT}/aws-lc-sys"
 BUILD_CFG_DIR="${SYS_CRATE_DIR}/builder/cc"
+mkdir -p "${BUILD_CFG_DIR}"
 
 function collect_source_files() {
     OS_NAME=$(uname)
@@ -46,7 +47,13 @@ function find_generated_src_dir() {
         echo Unknown OS: "${OS_NAME}"
         exit 1
     fi
+
     ARCH_NAME=$(uname -m)
+    if [[ "${ARCH_NAME}" =~ arm64 && "${OS_NAME}" =~ mac ]]; then
+      OS_NAME=ios
+      ARCH_NAME=aarch64
+    fi
+
     echo "${OS_NAME}-${ARCH_NAME}"
 }
 
