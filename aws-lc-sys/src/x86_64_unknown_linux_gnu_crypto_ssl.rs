@@ -802,6 +802,7 @@ pub const DH_R_INVALID_NID: i32 = 106;
 pub const DH_R_INVALID_PARAMETERS: i32 = 107;
 pub const DH_F_DH_BUILTIN_GENPARAMS: i32 = 0;
 pub const EVP_MAX_MD_SIZE: i32 = 64;
+pub const EVP_MAX_MD_CHAINING_LENGTH: i32 = 64;
 pub const EVP_MAX_MD_BLOCK_SIZE: i32 = 128;
 pub const EVP_MD_FLAG_DIGALGID_ABSENT: i32 = 2;
 pub const EVP_MD_FLAG_XOF: i32 = 4;
@@ -3278,6 +3279,11 @@ pub const EVP_PKEY_DH: i32 = 28;
 pub const HKDF_R_OUTPUT_TOO_LARGE: i32 = 100;
 pub const MD5_CBLOCK: i32 = 64;
 pub const MD5_DIGEST_LENGTH: i32 = 16;
+pub const HMAC_MAX_PRECOMPUTED_KEY_SIZE: i32 = 128;
+pub const HMAC_R_MISSING_PARAMETERS: i32 = 100;
+pub const HMAC_R_BUFFER_TOO_SMALL: i32 = 102;
+pub const HMAC_R_SET_PRECOMPUTED_KEY_EXPORT_NOT_CALLED: i32 = 103;
+pub const HMAC_R_NOT_CALLED_JUST_AFTER_INIT: i32 = 104;
 pub const EVP_HPKE_DHKEM_X25519_HKDF_SHA256: i32 = 32;
 pub const EVP_HPKE_MAX_PUBLIC_KEY_LENGTH: i32 = 32;
 pub const EVP_HPKE_MAX_PRIVATE_KEY_LENGTH: i32 = 32;
@@ -3535,8 +3541,6 @@ pub const X509_TRUST_SSL_CLIENT: i32 = 2;
 pub const X509_TRUST_SSL_SERVER: i32 = 3;
 pub const X509_TRUST_EMAIL: i32 = 4;
 pub const X509_TRUST_OBJECT_SIGN: i32 = 5;
-pub const X509_TRUST_OCSP_SIGN: i32 = 6;
-pub const X509_TRUST_OCSP_REQUEST: i32 = 7;
 pub const X509_TRUST_TSA: i32 = 8;
 pub const X509_TRUST_TRUSTED: i32 = 1;
 pub const X509_TRUST_REJECTED: i32 = 2;
@@ -3634,17 +3638,6 @@ pub const X509_V_FLAG_POLICY_MASK: i32 = 1920;
 pub const X509V3_EXT_CTX_DEP: i32 = 2;
 pub const X509V3_EXT_MULTILINE: i32 = 4;
 pub const CRLDP_ALL_REASONS: i32 = 32895;
-pub const CRL_REASON_NONE: i32 = -1;
-pub const CRL_REASON_UNSPECIFIED: i32 = 0;
-pub const CRL_REASON_KEY_COMPROMISE: i32 = 1;
-pub const CRL_REASON_CA_COMPROMISE: i32 = 2;
-pub const CRL_REASON_AFFILIATION_CHANGED: i32 = 3;
-pub const CRL_REASON_SUPERSEDED: i32 = 4;
-pub const CRL_REASON_CESSATION_OF_OPERATION: i32 = 5;
-pub const CRL_REASON_CERTIFICATE_HOLD: i32 = 6;
-pub const CRL_REASON_REMOVE_FROM_CRL: i32 = 8;
-pub const CRL_REASON_PRIVILEGE_WITHDRAWN: i32 = 9;
-pub const CRL_REASON_AA_COMPROMISE: i32 = 10;
 pub const NS_SSL_CLIENT: i32 = 128;
 pub const NS_SSL_SERVER: i32 = 64;
 pub const NS_SMIME: i32 = 32;
@@ -3824,6 +3817,17 @@ pub const TRUST_TOKEN_R_BAD_VALIDITY_CHECK: i32 = 111;
 pub const TRUST_TOKEN_R_NO_SRR_KEY_CONFIGURED: i32 = 112;
 pub const TRUST_TOKEN_R_INVALID_METADATA_KEY: i32 = 113;
 pub const TRUST_TOKEN_R_INVALID_PROOF: i32 = 114;
+pub const CRL_REASON_NONE: i32 = -1;
+pub const CRL_REASON_UNSPECIFIED: i32 = 0;
+pub const CRL_REASON_KEY_COMPROMISE: i32 = 1;
+pub const CRL_REASON_CA_COMPROMISE: i32 = 2;
+pub const CRL_REASON_AFFILIATION_CHANGED: i32 = 3;
+pub const CRL_REASON_SUPERSEDED: i32 = 4;
+pub const CRL_REASON_CESSATION_OF_OPERATION: i32 = 5;
+pub const CRL_REASON_CERTIFICATE_HOLD: i32 = 6;
+pub const CRL_REASON_REMOVE_FROM_CRL: i32 = 8;
+pub const CRL_REASON_PRIVILEGE_WITHDRAWN: i32 = 9;
+pub const CRL_REASON_AA_COMPROMISE: i32 = 10;
 pub const KU_DIGITAL_SIGNATURE: i32 = 128;
 pub const KU_NON_REPUDIATION: i32 = 64;
 pub const KU_KEY_ENCIPHERMENT: i32 = 32;
@@ -15382,14 +15386,6 @@ extern "C" {
     pub fn EC_GROUP_new_by_curve_name(nid: ::std::os::raw::c_int) -> *mut EC_GROUP;
 }
 extern "C" {
-    #[link_name = "\u{1}aws_lc_0_20_0_EC_GROUP_free"]
-    pub fn EC_GROUP_free(group: *mut EC_GROUP);
-}
-extern "C" {
-    #[link_name = "\u{1}aws_lc_0_20_0_EC_GROUP_dup"]
-    pub fn EC_GROUP_dup(a: *const EC_GROUP) -> *mut EC_GROUP;
-}
-extern "C" {
     #[link_name = "\u{1}aws_lc_0_20_0_EC_GROUP_cmp"]
     pub fn EC_GROUP_cmp(
         a: *const EC_GROUP,
@@ -15630,6 +15626,14 @@ extern "C" {
         msg: *const u8,
         msg_len: usize,
     ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    #[link_name = "\u{1}aws_lc_0_20_0_EC_GROUP_free"]
+    pub fn EC_GROUP_free(group: *mut EC_GROUP);
+}
+extern "C" {
+    #[link_name = "\u{1}aws_lc_0_20_0_EC_GROUP_dup"]
+    pub fn EC_GROUP_dup(group: *const EC_GROUP) -> *mut EC_GROUP;
 }
 extern "C" {
     #[link_name = "\u{1}aws_lc_0_20_0_EC_GROUP_new_curve_GFp"]
@@ -17477,7 +17481,7 @@ extern "C" {
         ctx: *mut EVP_PKEY_CTX,
         shared_secret: *mut u8,
         shared_secret_len: *mut usize,
-        ciphertext: *mut u8,
+        ciphertext: *const u8,
         ciphertext_len: usize,
     ) -> ::std::os::raw::c_int;
 }
@@ -18092,6 +18096,27 @@ extern "C" {
 extern "C" {
     #[link_name = "\u{1}aws_lc_0_20_0_HMAC_CTX_reset"]
     pub fn HMAC_CTX_reset(ctx: *mut HMAC_CTX);
+}
+extern "C" {
+    #[link_name = "\u{1}aws_lc_0_20_0_HMAC_set_precomputed_key_export"]
+    pub fn HMAC_set_precomputed_key_export(ctx: *mut HMAC_CTX) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    #[link_name = "\u{1}aws_lc_0_20_0_HMAC_get_precomputed_key"]
+    pub fn HMAC_get_precomputed_key(
+        ctx: *mut HMAC_CTX,
+        out: *mut u8,
+        out_len: *mut usize,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    #[link_name = "\u{1}aws_lc_0_20_0_HMAC_Init_from_precomputed_key"]
+    pub fn HMAC_Init_from_precomputed_key(
+        ctx: *mut HMAC_CTX,
+        precomputed_key: *const u8,
+        precompute_key_len: usize,
+        md: *const EVP_MD,
+    ) -> ::std::os::raw::c_int;
 }
 extern "C" {
     #[link_name = "\u{1}aws_lc_0_20_0_HMAC_Init"]
@@ -18891,6 +18916,18 @@ extern "C" {
         info_len: usize,
         salt: *const u8,
         salt_len: usize,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    #[link_name = "\u{1}aws_lc_0_20_0_KBKDF_ctr_hmac"]
+    pub fn KBKDF_ctr_hmac(
+        out_key: *mut u8,
+        out_len: usize,
+        digest: *const EVP_MD,
+        secret: *const u8,
+        secret_len: usize,
+        info: *const u8,
+        info_len: usize,
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
