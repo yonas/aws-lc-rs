@@ -155,7 +155,7 @@ impl CmakeBuilder {
 
         // See issue: https://github.com/aws/aws-lc-rs/issues/453
         if target_os() == "windows" {
-            Self::configure_windows(&mut cmake_cfg);
+            self.configure_windows(&mut cmake_cfg);
         }
 
         // If the build environment vendor is Apple
@@ -200,13 +200,13 @@ impl CmakeBuilder {
         }
 
         if target_env() == "ohos" {
-            Self::configure_open_harmony(&mut cmake_cfg);
+            self.configure_open_harmony(&mut cmake_cfg);
         }
 
         cmake_cfg
     }
 
-    fn configure_windows(cmake_cfg: &mut cmake::Config) {
+    fn configure_windows(&self, cmake_cfg: &mut cmake::Config) {
         match (target_env().as_str(), target_arch().as_str()) {
             ("msvc", "aarch64") => {
                 cmake_cfg.generator_toolset(format!(
@@ -238,7 +238,7 @@ impl CmakeBuilder {
         }
     }
 
-    fn configure_open_harmony(cmake_cfg: &mut cmake::Config) {
+    fn configure_open_harmony(&self, cmake_cfg: &mut cmake::Config) {
         const OHOS_NDK_HOME: &str = "OHOS_NDK_HOME";
         if let Ok(ndk) = env::var(OHOS_NDK_HOME) {
             cmake_cfg.define(
